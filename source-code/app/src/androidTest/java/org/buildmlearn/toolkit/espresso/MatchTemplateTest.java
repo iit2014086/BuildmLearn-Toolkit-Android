@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.support.test.annotation.UiThreadTest;
-import android.support.test.espresso.UiController;
-import android.support.test.espresso.ViewAction;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
@@ -20,30 +18,33 @@ import android.test.suitebuilder.annotation.LargeTest;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.buildmlearn.toolkit.R;
 import org.buildmlearn.toolkit.activity.TemplateEditor;
 import org.buildmlearn.toolkit.constant.Constants;
+import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
+import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.action.ViewActions.replaceText;
-import static android.support.test.espresso.action.ViewActions.scrollTo;
 import static android.support.test.espresso.action.ViewActions.typeText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
@@ -51,10 +52,11 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
  * Espresso test designed to test all the functionalities of Comprehension template
  * Created by anupam (opticod) on 7/6/16.
  */
-
+@Ignore
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class ComprehensionTest {
+public class MatchTemplateTest {
+
     @Rule
     public final ActivityTestRule<TemplateEditor> mActivityRule =
             new ActivityTestRule<TemplateEditor>(TemplateEditor.class) {
@@ -63,7 +65,7 @@ public class ComprehensionTest {
                     Context targetContext = getInstrumentation()
                             .getTargetContext();
                     Intent result = new Intent(targetContext, TemplateEditor.class);
-                    result.putExtra(Constants.TEMPLATE_ID, 5);
+                    result.putExtra(Constants.TEMPLATE_ID, 7);
                     return result;
                 }
             };
@@ -88,7 +90,7 @@ public class ComprehensionTest {
                 try {
                     allowPermissions.click();
                 } catch (UiObjectNotFoundException e) {
-                e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
         }
@@ -115,76 +117,79 @@ public class ComprehensionTest {
     }
 
     private void toolbarTitle() {
-        String title = "Comprehension Template";
+        String title = "Match Template";
         onView(allOf(instanceOf(TextView.class), withParent(withId(R.id.toolbar))))
                 .check(matches(withText(title)));
     }
 
     private void addMetaDetails() {
-        String passTitle = "PassageTitle";
-        String passage = "Short Passage.";
-        String timer = "180";
+        String title = "Match Title";
+        String first_list_title = "First List Title";
+        String second_list_title = "Second List Title";
 
         onView(withId(R.id.button_add_item)).perform(click());
         closeSoftKeyboard();
-        onView(withId(R.id.meta_title)).perform(typeText(passTitle));
+        onView(withId(R.id.meta_title)).perform(typeText(title));
         closeSoftKeyboard();
-        onView(withId(R.id.meta_passage)).perform(typeText(passage), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.meta_first_list_title)).perform(typeText(first_list_title), ViewActions.closeSoftKeyboard());
         sleep();
-        onView(withId(R.id.meta_timer)).perform(scrollTo());
-        sleep();
-        onView(withId(R.id.meta_timer)).perform(click()).perform(typeText(timer), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.meta_second_list_title)).perform(typeText(second_list_title), ViewActions.closeSoftKeyboard());;
         sleep();
         onView(withText("Add")).perform(click());
 
     }
 
     private void editMetaDetails() {
-        String passTitle = "EditedPassageTitle";
-        String passage = "EditedShort Passage.";
+        String title = "Edited Match Title";
+        String first_list_title = "Edited First List Title";
+        String second_list_title = "Edited Second List Title";
 
         onView(withId(R.id.template_meta_listview)).perform(longClick());
         onView(withId(R.id.action_edit)).perform(click());
         closeSoftKeyboard();
-        onView(withId(R.id.meta_title)).perform(replaceText(passTitle));
+        onView(withId(R.id.meta_title)).perform(replaceText(title));
         closeSoftKeyboard();
-        onView(withId(R.id.meta_passage)).perform(replaceText(passage), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.meta_first_list_title)).perform(replaceText(first_list_title), ViewActions.closeSoftKeyboard());
+        sleep();
+        onView(withId(R.id.meta_second_list_title)).perform(replaceText(second_list_title), ViewActions.closeSoftKeyboard());;
         sleep();
         onView(withText(R.string.quiz_ok)).perform(click());
 
     }
 
-    private void addQuestions() {
-        String question = "This is just a silly question whose answer is (b).";
+    private void addMatchItems() {
 
         onView(withId(R.id.button_add_item)).perform(click());
-        onView(withId(R.id.quiz_question)).perform(typeText(question));
+        onView(withId(R.id.first_list_item)).perform(typeText("a"));
         closeSoftKeyboard();
         sleep();
-        onView(withId(R.id.quiz_option_1)).perform(scrollTo());
-        onView(withId(R.id.quiz_option_1)).perform(typeText("A"));
-        closeSoftKeyboard();
-        sleep();
-        onView(withId(R.id.quiz_option_2)).perform(scrollTo());
-        onView(withId(R.id.quiz_option_2)).perform(typeText("B"));
-        closeSoftKeyboard();
-        sleep();
-        onView(withId(R.id.quiz_radio_2)).perform(scrollTo()).perform(click());
+        onView(withId(R.id.second_list_item)).perform(typeText("A"));
         closeSoftKeyboard();
         sleep();
         onView(withText("Add")).perform(click());
+        sleep();
+
+        onView(withId(R.id.button_add_item)).perform(click());
+        onView(withId(R.id.first_list_item)).perform(typeText("b"));
+        closeSoftKeyboard();
+        sleep();
+        onView(withId(R.id.second_list_item)).perform(typeText("B"));
+        closeSoftKeyboard();
+        sleep();
+        onView(withText("Add")).perform(click());
+        sleep();
 
     }
 
-    private void editQuestions() {
-        String question = "This is just a silly question whose answer changed to (a).";
+    private void editMatchItems() {
 
         onView(withId(R.id.template_editor_recyclerView)).perform(RecyclerViewActions.actionOnItemAtPosition(1, longClick()));
         sleep();
         onView(withId(R.id.action_edit)).perform(click());
-        onView(withId(R.id.quiz_question)).perform(replaceText(question));
+        sleep();
+        onView(withId(R.id.first_list_item)).perform(replaceText("c"));
         closeSoftKeyboard();
-        onView(withId(R.id.quiz_radio_1)).perform(scrollTo()).perform(click());
+        onView(withId(R.id.second_list_item)).perform(replaceText("C"));
         closeSoftKeyboard();
         onView(withText(R.string.quiz_ok)).perform(click());
 
@@ -192,8 +197,8 @@ public class ComprehensionTest {
 
     private void addTemplate() {
 
-        onView(withId(R.id.author_name)).perform(replaceText("Anupam"));
-        onView(withId(R.id.template_title)).perform(replaceText("Testing template"));
+        onView(withId(R.id.author_name)).perform(replaceText("tejavojjala"));
+        onView(withId(R.id.template_title)).perform(replaceText("Testing Match template"));
     }
 
     private void saveAPK() {
@@ -205,50 +210,84 @@ public class ComprehensionTest {
         onView(withText("install")).perform(click());
     }
 
-    private String getText(final Matcher<View> matcher) {
-        final String[] stringHolder = {null};
-        onView(matcher).perform(new ViewAction() {
+    int num;
+    int num1,num2,num3,num4;
+    private int getPosition(final String required){
+
+        num=0;
+        onView(new Matcher<View>() {
             @Override
-            public Matcher<View> getConstraints() {
-                return isAssignableFrom(TextView.class);
+            public boolean matches(Object item) {
+                boolean matches = withId(R.id.text).matches(item);
+                if(matches){
+                    num++;
+                    View view = (View) item;
+                    String matchedText = ((TextView)view).getText().toString();
+                    if(matchedText.equals(required))
+                    {
+                        if(required.equals("c"))num1=num;
+                        else if(required.equals("b"))num2=num;
+                        else if(required.equals("C"))num3=num;
+                        else if(required.equals("B"))num4=num;
+                        Toast.makeText(mActivityRule.getActivity(),String.valueOf(num),Toast.LENGTH_LONG).show();
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
             }
 
             @Override
-            public String getDescription() {
-                return "getting text from a TextView";
+            public void describeMismatch(Object item, Description mismatchDescription) {
+
             }
 
             @Override
-            public void perform(UiController uiController, View view) {
-                TextView tv = (TextView) view;
-                stringHolder[0] = tv.getText().toString();
+            public void _dont_implement_Matcher___instead_extend_BaseMatcher_() {
+
             }
-        });
-        return stringHolder[0];
+
+            @Override
+            public void describeTo(Description description) {
+
+            }
+        }).check(matches(isDisplayed()));
+        return num;
     }
 
     private void checkSimulator() {
         onView(withId(R.id.action_simulate)).perform(click());
-        onView(withText("Testing template")).check(matches(isDisplayed()));
-        onView(withText("Anupam")).check(matches(isDisplayed()));
+        onView(withText("Testing Match template")).check(matches(isDisplayed()));
+        onView(withText("tejavojjala")).check(matches(isDisplayed()));
         onView(withId(R.id.enter)).perform(click());
-        String title = "EditedPassageTitle";
-        String passage = "EditedShort Passage.";
-        onView(allOf(instanceOf(TextView.class), withParent(withId(R.id.toolbar)), withText(title)))
+        String title = "Edited Match Title";
+        String first_list_title = "Edited First List Title";
+        String second_list_title = "Edited Second List Title";
+
+        onView(allOf(instanceOf(TextView.class), withParent(withId(R.id.toolbar_main)), withText(title)))
                 .check(matches(isDisplayed()));
+        onView(withId(R.id.first_list_title)).check(matches(withText(first_list_title))).check(matches(isDisplayed()));
+        onView(withId(R.id.second_list_title)).check(matches(withText(second_list_title))).check(matches(isDisplayed()));
 
-        onView(withId(R.id.passage)).check(matches(withText(passage))).check(matches(isDisplayed()));
+        num1=getPosition("c");
+        num2=getPosition("b");
+        num3=getPosition("C");
+        num4=getPosition("B");
+        sleep();
 
-        onView(withId(R.id.go_to_ques)).perform(scrollTo()).perform(click());
+        if(!(((num1<num2)&&(num3<num4))||(((num1>num2)&&(num3>num4)))))
+        {
+            onData(anything()).inAdapterView(withId(R.id.list_view_match_A)).atPosition(1).perform(click());
+            onView(withId(R.id.first_list_down)).perform(click());
+        }
 
-        onView(withId(R.id.radioButton1)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.next)).perform(scrollTo()).perform(click());
-        onView(withId(R.id.correct)).check(matches(withText("Total Correct : 1"))).check(matches(isDisplayed()));
-        onView(withId(R.id.wrong)).check(matches(withText("Total Wrong : 0"))).check(matches(isDisplayed()));
-        onView(withId(R.id.un_answered)).check(matches(withText("Total Unanswered : 0"))).check(matches(isDisplayed()));
+        onView(withId(R.id.check_answer)).perform(click());
+        sleep();
 
-        onView(withId(R.id.exit)).perform(click());
+        onView(withId(R.id.score)).check(matches(withText("Score : 2 of 2")));
+        sleep();
 
+        onView(withId(R.id.try_again)).perform(click());
     }
 
     @Test
@@ -257,10 +296,10 @@ public class ComprehensionTest {
         toolbarTitle();
         addTemplate();
         addMetaDetails();
-        addQuestions();
         editMetaDetails();
-        editQuestions();
+        addMatchItems();
+        editMatchItems();
         checkSimulator();
-    //    saveAPK();
+        //saveAPK();
     }
 }
