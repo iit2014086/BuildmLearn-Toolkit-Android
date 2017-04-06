@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -560,6 +559,12 @@ public class ComprehensionTemplate implements TemplateInterface {
                             isValidated = false;
                             return;
                         }
+                    }
+
+                    if ("".equals(options.get(checkedAns).getText().toString().trim())){
+                        Toast.makeText(activity, R.string.answer_not_blank, Toast.LENGTH_SHORT).show();
+                        isValidated = false;
+                        return;
                     }
 
                     if (isValidated) {

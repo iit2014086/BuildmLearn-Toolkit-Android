@@ -15,7 +15,6 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -36,7 +35,11 @@ import java.io.InputStream;
 public class SettingsFragment extends PreferenceFragment {
 
     private static final int REQUEST_PICK_APK = 9985;
+    private static final int REQUEST_CHOICES=9906;
     private Preference prefUsername;
+    private Toast mToast;
+
+    private static int openChoices=0;
 
     private static float deleteDirectory(File file, float size) {
         if (file.exists()) {
@@ -61,6 +64,7 @@ public class SettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.fragment_settings);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mToast=Toast.makeText(getActivity()," ",Toast.LENGTH_SHORT);
 
         Preference deleteTempFiles = findPreference(getString(R.string.key_delete_temporary_files));
         deleteTempFiles.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -81,8 +85,10 @@ public class SettingsFragment extends PreferenceFragment {
                 if(NetworkUtils.isNetworkAvailable(getActivity()))
                     startActivity(new Intent(Intent.ACTION_VIEW,
                             Uri.parse("http://play.google.com/store/apps/details?id=" + getActivity().getPackageName())));
-                else
-                    Toast.makeText(getActivity(), R.string.settings_network_unavailable,Toast.LENGTH_SHORT).show();
+                else {
+                    mToast.setText(R.string.settings_network_unavailable);
+                    mToast.show();
+                }
                 return true;
             }
         });
@@ -91,13 +97,17 @@ public class SettingsFragment extends PreferenceFragment {
         tell_friend.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Intent shareIntent = new Intent();
-                shareIntent.setAction(Intent.ACTION_SEND);
-                shareIntent.putExtra(Intent.EXTRA_TEXT,getString(R.string.pref_tell_message)+" http://play.google.com/store/apps/details?id=" + getActivity().getPackageName());
-                shareIntent.setType("text/plain");
-                startActivity(shareIntent);
+                if(openChoices == 0) {
+                    openChoices++;
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.pref_tell_message) + " http://play.google.com/store/apps/details?id=" + getActivity().getPackageName());
+                    shareIntent.setType("text/plain");
+                    startActivityForResult(shareIntent,REQUEST_CHOICES);
+                }
                 return true;
             }
+
         });
 
         Preference restoreProject = findPreference(getString(R.string.key_restore_project));
@@ -168,6 +178,7 @@ public class SettingsFragment extends PreferenceFragment {
         View dialogView = View.inflate(getActivity(),R.layout.dialog_settings_your_name, null);
         final EditText editInput = (EditText) dialogView.findViewById(R.id.et_dialog_settings_your_name);
         editInput.setText(prefUsername.getSummary());
+        editInput.setSelection(editInput.getText().length());
 
         final AlertDialog dialog =
                 new AlertDialog.Builder(getActivity())
@@ -204,7 +215,12 @@ public class SettingsFragment extends PreferenceFragment {
         if ("".equals(authorText)) {
             editInput.setError(mContext.getString(R.string.valid_msg_name));
             return false;
-        } else if (!Character.isLetterOrDigit(authorText.charAt(0))) {
+        }
+        else if(authorText.length()>24) {
+            editInput.setError("Name must be less than 24 characters");
+            return false;
+        }
+        else if (!Character.isLetterOrDigit(authorText.charAt(0))) {
             editInput.setError(mContext.getString(R.string.title_valid));
             return false;
         }
@@ -216,6 +232,11 @@ public class SettingsFragment extends PreferenceFragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         switch (requestCode) {
+
+            case REQUEST_CHOICES:{
+                openChoices--;
+                break;
+            }
             case REQUEST_PICK_APK:
 
                 if (resultCode == Activity.RESULT_OK) {
@@ -342,7 +363,8 @@ public class SettingsFragment extends PreferenceFragment {
             if (size != 0) {
                 Toast.makeText(getActivity(), "Deleted " + size + " MB.", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getActivity(), "No Temp Files Found!", Toast.LENGTH_SHORT).show();
+                mToast.setText("No Temp Files Found!");
+                mToast.show();
             }
         }
     }

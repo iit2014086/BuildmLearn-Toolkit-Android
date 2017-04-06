@@ -260,7 +260,6 @@
     <!-- Preference Data-->
 
 
-
     <string name="title_user_name">Enter your name</string>
 
     <string name="key_delete_temporary_files">delete_temp_files</string>
@@ -399,6 +398,7 @@
     <string name="meta_title_match_hint">Enter Title</string>
 
 
+    <string name="answer_not_blank">Answer cannot be blank.</string>
     <string name="previous_match">PREVIOUS</string>
     <string name="check_answers_match">CHECK ANSWERS</string>
     <string name="try_again_match">TRY AGAIN</string>
@@ -467,4 +467,5 @@
     <string name="move_down">Move Down</string>
     <string name="already_at_top">Already at top</string>
     <string name="already_at_bottom">Already at bottom</string>
+    <string name="button_next">Next</string>
 </resources>

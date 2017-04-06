@@ -221,10 +221,9 @@ public class QuizTemplate implements TemplateInterface {
                     isValidated = false;
                     return;
                 }
-
-                for (int i = 0; i < options.size(); i++) {
-                    for (int j = 0; j < i; j++) {
-                        if (!options.get(i).getText().toString().trim().isEmpty() && options.get(i).getText().toString().trim().equalsIgnoreCase(options.get(j).getText().toString().trim())) {
+                for(int i=0;i<options.size();i++){
+                    for(int j=0;j<i;j++){
+                        if (isValidated && !options.get(i).getText().toString().trim().isEmpty() && options.get(i).getText().toString().trim().equalsIgnoreCase(options.get(j).getText().toString().trim())) {
                             Toast.makeText(activity.getApplication(), activity.getString(R.string.same_options), Toast.LENGTH_SHORT).show();
                             isValidated = false;
                         }
@@ -374,6 +373,12 @@ public class QuizTemplate implements TemplateInterface {
                         isValidated = false;
                         return;
                     }
+                }
+
+                if ("".equals(options.get(checkedAns).getText().toString().trim())){
+                    Toast.makeText(activity, R.string.answer_not_blank, Toast.LENGTH_SHORT).show();
+                    isValidated = false;
+                    return;
                 }
 
                 if (isValidated) {
